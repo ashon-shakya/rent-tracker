@@ -166,7 +166,9 @@ export default function PaymentList({ payments, rentAgreementId, tenants = [], r
                     <td className="px-6 py-4 text-sm font-bold text-slate-800">${p.paidAmount.toLocaleString()}</td>
                     <td className="px-6 py-4 text-xs font-medium text-slate-600">{p.paidBy || "Me"}</td>
                     <td className="px-6 py-4 text-xs text-slate-400">
-                      {new Date(p.periodStartDate).toLocaleDateString("en-GB")} — {new Date(p.periodEndDate).toLocaleDateString("en-GB")}
+                      {p.periodStartDate && p.periodEndDate 
+                        ? `${new Date(p.periodStartDate).toLocaleDateString("en-GB")} — ${new Date(p.periodEndDate).toLocaleDateString("en-GB")}`
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-xs text-slate-400">{new Date(p.paidDate).toLocaleDateString("en-GB")}</td>
                     <td className="px-6 py-4">
@@ -210,7 +212,9 @@ export default function PaymentList({ payments, rentAgreementId, tenants = [], r
                       By: <span className="font-medium text-slate-600">{p.paidBy || "Me"}</span>
                     </p>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {new Date(p.periodStartDate).toLocaleDateString("en-GB")} — {new Date(p.periodEndDate).toLocaleDateString("en-GB")}
+                      {p.periodStartDate && p.periodEndDate 
+                        ? `${new Date(p.periodStartDate).toLocaleDateString("en-GB")} — ${new Date(p.periodEndDate).toLocaleDateString("en-GB")}`
+                        : "N/A"}
                     </p>
                   </div>
                 </div>

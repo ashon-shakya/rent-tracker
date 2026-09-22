@@ -127,38 +127,42 @@ export default function PaymentForm({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-600">Period Start Date</label>
-              <input 
-                required
-                name="periodStartDate"
-                type="date"
-                defaultValue={defaultPeriodStartDate}
-                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-800 focus:ring-2 focus:ring-violet-400 outline-none transition-all"
-              />
-            </div>
+            {paymentType === "RENT" && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-600">Period Start Date</label>
+                  <input 
+                    required
+                    name="periodStartDate"
+                    type="date"
+                    defaultValue={defaultPeriodStartDate}
+                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-800 focus:ring-2 focus:ring-violet-400 outline-none transition-all"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-600">Period End Date</label>
-              <input 
-                required
-                name="periodEndDate"
-                type="date"
-                defaultValue={defaultPeriodEndDate}
-                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-800 focus:ring-2 focus:ring-violet-400 outline-none transition-all"
-              />
-            </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-600">Period End Date</label>
+                  <input 
+                    required
+                    name="periodEndDate"
+                    type="date"
+                    defaultValue={defaultPeriodEndDate}
+                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-800 focus:ring-2 focus:ring-violet-400 outline-none transition-all"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-600">Due Date</label>
-              <input 
-                required
-                name="dueDate"
-                type="date"
-                defaultValue={defaultDueDate}
-                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-800 focus:ring-2 focus:ring-violet-400 outline-none transition-all"
-              />
-            </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-600">Due Date</label>
+                  <input 
+                    required
+                    name="dueDate"
+                    type="date"
+                    defaultValue={defaultDueDate}
+                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-800 focus:ring-2 focus:ring-violet-400 outline-none transition-all"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-600">Date Paid</label>

@@ -22,17 +22,22 @@ export async function logPayment(formData: FormData) {
   const paidDate = formData.get("paidDate") as string;
   const paidBy = formData.get("paidBy") as string;
 
-  await Payment.create({
+  const paymentData: any = {
     rentAgreementId,
     type,
     paidAmount,
-    periodStartDate: new Date(periodStartDate),
-    periodEndDate: new Date(periodEndDate),
-    dueDate: new Date(dueDate),
     paidDate: new Date(paidDate),
     paidBy,
     status: 'PAID'
-  });
+  };
+
+  if (type === 'RENT') {
+    if (periodStartDate) paymentData.periodStartDate = new Date(periodStartDate);
+    if (periodEndDate) paymentData.periodEndDate = new Date(periodEndDate);
+    if (dueDate) paymentData.dueDate = new Date(dueDate);
+  }
+
+  await Payment.create(paymentData);
 
   revalidatePath(`/dashboard/rents/${rentAgreementId}`);
   revalidatePath(`/dashboard/activity`);
