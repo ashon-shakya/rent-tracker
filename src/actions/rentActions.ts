@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 
 export async function createRentAgreement(formData: FormData) {
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  if (!session?.user?.email) {
     throw new Error("Unauthorized");
   }
 

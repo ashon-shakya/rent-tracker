@@ -79,7 +79,7 @@ export default function PaymentList({ payments, rentAgreementId, tenants = [], r
 
     if (totalParts === 0) totalParts = 1; // Fallback to avoid division by zero
 
-    const breakdown = tenantShares.map(ts => ({
+    const breakdown: { id?: string, name: string, amount: number, parts: number }[] = tenantShares.map(ts => ({
       name: ts.name,
       amount: totalAmount * (ts.parts / totalParts),
       parts: ts.parts

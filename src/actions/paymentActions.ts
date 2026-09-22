@@ -14,7 +14,7 @@ export async function logPayment(formData: FormData) {
   await dbConnect();
 
   const rentAgreementId = formData.get("rentAgreementId") as string;
-  const type = (formData.get("type") as string) || "RENT";
+  const type = (formData.get("type") as string) as "RENT" | "BOND" || "RENT";
   const paidAmount = parseFloat(formData.get("paidAmount") as string);
   const periodStartDate = formData.get("periodStartDate") as string;
   const periodEndDate = formData.get("periodEndDate") as string;

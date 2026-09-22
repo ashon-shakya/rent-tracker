@@ -43,7 +43,7 @@ export default function PaymentChart({ data }: PaymentChartProps) {
           <Tooltip 
             cursor={{ fill: '#f8fafc' }}
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
-            formatter={(value: number) => [`$${value}`, undefined]}
+            formatter={(value: any) => [`$${value}`, undefined]}
           />
           <Bar dataKey="rent" name="Rent" stackId="a" fill="#8b5cf6" radius={[0, 0, 4, 4]} maxBarSize={40} />
           <Bar dataKey="bond" name="Bond" stackId="a" fill="#0ea5e9" radius={[4, 4, 0, 0]} maxBarSize={40} />
