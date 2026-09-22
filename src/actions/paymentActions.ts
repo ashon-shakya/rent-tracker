@@ -53,7 +53,7 @@ export async function getPaymentsByRentAgreement(rentAgreementId: string) {
 
 export async function getLastPayment(rentAgreementId: string) {
   await dbConnect();
-  const payment = await Payment.findOne({ rentAgreementId }).sort({ periodEndDate: -1 }).lean();
+  const payment = await Payment.findOne({ rentAgreementId, type: 'RENT' }).sort({ periodEndDate: -1 }).lean();
   return payment ? JSON.parse(JSON.stringify(payment)) : null;
 }
 
