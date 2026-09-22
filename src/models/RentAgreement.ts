@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IRentAgreement extends Document {
+  ownerEmail: string;
   address: string;
   icon: string;
   startDate: Date;
@@ -8,11 +9,14 @@ export interface IRentAgreement extends Document {
   rentAmount: number;
   bondAmount: number;
   rentDueDays: number;
+  adminRentShareParts: number;
+  adminBondShareParts: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const RentAgreementSchema: Schema = new Schema({
+  ownerEmail: { type: String }, // Optional for now to support old records before migration
   address: { type: String, required: true },
   icon: { type: String, required: true, default: "Home" },
   startDate: { type: Date, required: true },
@@ -20,8 +24,13 @@ const RentAgreementSchema: Schema = new Schema({
   rentAmount: { type: Number, required: true },
   bondAmount: { type: Number, required: true },
   rentDueDays: { type: Number, required: true }, // e.g., 7 for weekly
+  adminRentShareParts: { type: Number, default: 1 },
+  adminBondShareParts: { type: Number, default: 1 },
 }, { timestamps: true });
 
-const RentAgreement: Model<IRentAgreement> = mongoose.models.RentAgreement || mongoose.model<IRentAgreement>('RentAgreement', RentAgreementSchema);
+if (mongoose.models.RentAgreement) {
+  delete mongoose.models.RentAgreement;
+}
+const RentAgreement: Model<IRentAgreement> = mongoose.model<IRentAgreement>('RentAgreement', RentAgreementSchema);
 
 export default RentAgreement;

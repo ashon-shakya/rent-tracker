@@ -35,6 +35,13 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   callbacks: {
+    async signIn({ user }) {
+      if (user.email && !user.email.toLowerCase().endsWith('@gmail.com')) {
+        // Reject login if it's not a gmail address
+        return '/login?error=GmailRequired';
+      }
+      return true;
+    },
     async session({ session, token }) {
       if (session?.user) {
         // Add the user ID to the session from the JWT token

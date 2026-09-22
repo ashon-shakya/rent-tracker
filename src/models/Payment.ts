@@ -2,11 +2,13 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IPayment extends Document {
   rentAgreementId: mongoose.Types.ObjectId;
+  type: 'RENT' | 'BOND';
   periodStartDate: Date;
   periodEndDate: Date;
   dueDate: Date;
   paidAmount?: number;
   paidById?: mongoose.Types.ObjectId;
+  paidBy?: string;
   paidDate?: Date;
   status: 'PENDING' | 'PAID' | 'PARTIAL';
   createdAt: Date;
@@ -15,15 +17,20 @@ export interface IPayment extends Document {
 
 const PaymentSchema: Schema = new Schema({
   rentAgreementId: { type: Schema.Types.ObjectId, ref: 'RentAgreement', required: true },
+  type: { type: String, enum: ['RENT', 'BOND'], default: 'RENT' },
   periodStartDate: { type: Date, required: true },
   periodEndDate: { type: Date, required: true },
   dueDate: { type: Date, required: true },
   paidAmount: { type: Number },
   paidById: { type: Schema.Types.ObjectId, ref: 'User' },
+  paidBy: { type: String },
   paidDate: { type: Date },
   status: { type: String, enum: ['PENDING', 'PAID', 'PARTIAL'], default: 'PENDING' },
 }, { timestamps: true });
 
-const Payment: Model<IPayment> = mongoose.models.Payment || mongoose.model<IPayment>('Payment', PaymentSchema);
+if (mongoose.models.Payment) {
+  delete mongoose.models.Payment;
+}
+const Payment: Model<IPayment> = mongoose.model<IPayment>('Payment', PaymentSchema);
 
 export default Payment;

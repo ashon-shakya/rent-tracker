@@ -9,7 +9,7 @@ export function SubmitButton() {
     <Button 
       type="submit" 
       disabled={pending}
-      className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-8 shadow-sm"
+      className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-8 shadow-sm"
     >
       {pending ? "Saving..." : "Create Agreement"}
     </Button>

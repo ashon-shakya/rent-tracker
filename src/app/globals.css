@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,6 +46,21 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Pastel color palette */
+  --color-pastel-violet: #a78bfa;
+  --color-pastel-violet-light: #ede9fe;
+  --color-pastel-violet-dark: #7c3aed;
+  --color-pastel-rose: #fda4af;
+  --color-pastel-rose-light: #fff1f2;
+  --color-pastel-sky: #93c5fd;
+  --color-pastel-sky-light: #eff6ff;
+  --color-pastel-mint: #86efac;
+  --color-pastel-mint-light: #f0fdf4;
+  --color-pastel-amber: #fcd34d;
+  --color-pastel-amber-light: #fffbeb;
+  --color-pastel-peach: #fdba74;
+  --color-pastel-peach-light: #fff7ed;
 }
 
 :root {

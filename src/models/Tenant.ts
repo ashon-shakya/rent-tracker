@@ -20,6 +20,9 @@ const TenantSchema: Schema = new Schema({
   rentShareParts: { type: Number, required: true },
 }, { timestamps: true });
 
-const Tenant: Model<ITenant> = mongoose.models.Tenant || mongoose.model<ITenant>('Tenant', TenantSchema);
+if (mongoose.models.Tenant) {
+  delete mongoose.models.Tenant;
+}
+const Tenant: Model<ITenant> = mongoose.model<ITenant>('Tenant', TenantSchema);
 
 export default Tenant;

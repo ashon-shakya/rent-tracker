@@ -34,7 +34,7 @@ export default function AddRentPage() {
               name="address"
               type="text" 
               placeholder="e.g. 123 Main St, Apt 4B"
-              className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400"
+              className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-violet-600 outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
@@ -48,7 +48,7 @@ export default function AddRentPage() {
                   onClick={() => setSelectedIcon(ico.name)}
                   className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
                     selectedIcon === ico.name 
-                      ? "bg-blue-600 text-white shadow-md shadow-blue-200 scale-105" 
+                      ? "bg-violet-600 text-white shadow-md shadow-violet-200 scale-105" 
                       : "bg-slate-50 text-slate-400 hover:bg-slate-100"
                   }`}
                 >
@@ -66,7 +66,7 @@ export default function AddRentPage() {
                 required
                 name="startDate"
                 type="date" 
-                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-violet-600 outline-none transition-all"
               />
             </div>
             <div className="space-y-2">
@@ -74,7 +74,7 @@ export default function AddRentPage() {
               <input 
                 name="endDate"
                 type="date" 
-                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-violet-600 outline-none transition-all"
               />
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function AddRentPage() {
                   min="0"
                   step="0.01"
                   placeholder="2000"
-                  className="w-full bg-slate-50 border-none rounded-xl pl-8 pr-4 py-3 text-slate-900 focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400"
+                  className="w-full bg-slate-50 border-none rounded-xl pl-8 pr-4 py-3 text-slate-900 focus:ring-2 focus:ring-violet-600 outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -106,7 +106,7 @@ export default function AddRentPage() {
                   min="0"
                   step="0.01"
                   placeholder="4000"
-                  className="w-full bg-slate-50 border-none rounded-xl pl-8 pr-4 py-3 text-slate-900 focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400"
+                  className="w-full bg-slate-50 border-none rounded-xl pl-8 pr-4 py-3 text-slate-900 focus:ring-2 focus:ring-violet-600 outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -114,7 +114,7 @@ export default function AddRentPage() {
 
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700">Rent Due Every (Days)</label>
-            <select name="rentDueDays" className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-blue-600 outline-none transition-all appearance-none cursor-pointer">
+            <select name="rentDueDays" className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-violet-600 outline-none transition-all appearance-none cursor-pointer">
               <option value="7">Weekly (7 days)</option>
               <option value="14">Fortnightly (14 days)</option>
               <option value="30">Monthly (30 days)</option>
