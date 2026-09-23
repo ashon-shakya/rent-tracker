@@ -24,7 +24,7 @@ export async function createRentAgreement(formData: FormData) {
   const bondAmount = parseFloat(formData.get("bondAmount") as string);
   const rentDueDays = parseInt(formData.get("rentDueDays") as string, 10);
 
-  const rent = await RentAgreement.create({
+  await RentAgreement.create({
     ownerEmail: session.user.email,
     address,
     icon,
@@ -48,7 +48,7 @@ export async function getRentAgreements() {
   const email = session.user.email;
 
   await dbConnect();
-  
+
   // Lazy migration: If there are any agreements without an owner, assign them to the current user
   await RentAgreement.updateMany(
     { ownerEmail: { $exists: false } },
@@ -57,16 +57,15 @@ export async function getRentAgreements() {
 
   // Find all agreements where the user is a tenant
   const userTenancies = await Tenant.find({ email }).lean();
-  const tenantAgreementIds = userTenancies.map(t => t.rentAgreementId);
+  const tenantAgreementIds = userTenancies.map((t) => t.rentAgreementId);
 
   // Fetch all agreements where the user is the owner OR a tenant
   const rents = await RentAgreement.find({
-    $or: [
-      { ownerEmail: email },
-      { _id: { $in: tenantAgreementIds } }
-    ]
-  }).sort({ createdAt: -1 }).lean();
-  
+    $or: [{ ownerEmail: email }, { _id: { $in: tenantAgreementIds } }],
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+
   return JSON.parse(JSON.stringify(rents));
 }
 
@@ -75,11 +74,12 @@ export async function getRentAgreementById(id: string) {
   if (!session?.user) return null;
 
   await dbConnect();
-  
+
   try {
     const rent = await RentAgreement.findById(id).lean();
     return rent ? JSON.parse(JSON.stringify(rent)) : null;
   } catch (error) {
+    console.error("Failed to fetch rent agreement by id", error);
     return null;
   }
 }
@@ -128,6 +128,7 @@ export async function updateRentAgreementAdminShares(id: string, formData: FormD
 
   const adminRentShareParts = parseFloat(formData.get("rentShareParts") as string) || 1;
   const adminBondShareParts = parseFloat(formData.get("bondShareParts") as string) || 1;
+  const adminUtilityShareParts = parseFloat(formData.get("utilityShareParts") as string) || 1;
 
   const rentAgreement = await RentAgreement.findById(id);
   if (!rentAgreement || rentAgreement.ownerEmail !== session.user.email) {
@@ -136,7 +137,8 @@ export async function updateRentAgreementAdminShares(id: string, formData: FormD
 
   await RentAgreement.findByIdAndUpdate(id, {
     adminRentShareParts,
-    adminBondShareParts
+    adminBondShareParts,
+    adminUtilityShareParts,
   });
 
   revalidatePath(`/dashboard/rents/${id}`);
@@ -147,9 +149,7 @@ export async function deleteRentAgreement(id: string) {
   if (!session?.user) throw new Error("Unauthorized");
 
   await dbConnect();
-  
-  // Need to import models inline to avoid circular dependencies if any, 
-  // but it's safe to require them here
+
   const Payment = (await import("@/models/Payment")).default;
 
   const rentAgreement = await RentAgreement.findById(id);
@@ -161,7 +161,7 @@ export async function deleteRentAgreement(id: string) {
   await Promise.all([
     Payment.deleteMany({ rentAgreementId: id }),
     Tenant.deleteMany({ rentAgreementId: id }),
-    RentAgreement.findByIdAndDelete(id)
+    RentAgreement.findByIdAndDelete(id),
   ]);
 
   revalidatePath("/dashboard/rents");
@@ -170,4 +170,3 @@ export async function deleteRentAgreement(id: string) {
   revalidatePath("/dashboard/tenants");
   redirect("/dashboard/rents");
 }
-

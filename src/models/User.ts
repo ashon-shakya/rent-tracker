@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUser extends Document {
   name?: string;
@@ -8,14 +8,20 @@ export interface IUser extends Document {
   icon?: string;
 }
 
-const UserSchema: Schema = new Schema({
-  name: { type: String },
-  email: { type: String, unique: true },
-  emailVerified: { type: Date },
-  image: { type: String },
-  icon: { type: String },
-}, { timestamps: true });
+const UserSchema: Schema = new Schema(
+  {
+    name: { type: String },
+    email: { type: String, unique: true },
+    emailVerified: { type: Date },
+    image: { type: String },
+    icon: { type: String },
+  },
+  { timestamps: true }
+);
 
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+// Indexes
+UserSchema.index({ email: 1 }, { unique: true, sparse: true });
+
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
 export default User;

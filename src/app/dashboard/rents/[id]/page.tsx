@@ -1,13 +1,15 @@
-import { ArrowLeft, Edit2, CreditCard, UserPlus, Building, Tent, Castle, Hotel, Home, Wallet } from "lucide-react";
+import { ArrowLeft, Edit2, CreditCard, UserPlus, Building, Tent, Castle, Hotel, Home } from "lucide-react";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { getRentAgreementById } from "@/actions/rentActions";
 import { getTenantsByRentAgreement } from "@/actions/tenantActions";
 import { getPaymentsByRentAgreement } from "@/actions/paymentActions";
+import { getUtilitiesByRentAgreement } from "@/actions/utilityActions";
 import { notFound } from "next/navigation";
 import PaymentList from "./PaymentList";
 import TenantList from "./TenantList";
+import UtilityList from "./UtilityList";
 
 const getIcon = (name: string) => {
   switch (name) {
@@ -22,7 +24,6 @@ const getIcon = (name: string) => {
 export default async function RentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const session = await getServerSession(authOptions);
-  const userName = session?.user?.name || "User";
   const userEmail = session?.user?.email || "";
 
   const rent = await getRentAgreementById(resolvedParams.id);
@@ -32,6 +33,7 @@ export default async function RentDetailsPage({ params }: { params: Promise<{ id
 
   const tenants = await getTenantsByRentAgreement(resolvedParams.id);
   const payments = await getPaymentsByRentAgreement(resolvedParams.id);
+  const utilities = await getUtilitiesByRentAgreement(resolvedParams.id);
 
   const startDate = new Date(rent.startDate).toLocaleDateString("en-GB");
   const isAdmin = userEmail === rent.ownerEmail;
@@ -78,10 +80,10 @@ export default async function RentDetailsPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      {/* Desktop: Agreement details + Payments side by side */}
+      {/* Desktop: Agreement details + Utilities + Payments */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-8 gap-8 px-4 md:px-0">
 
-        {/* Left Column: Rent Details + Tenants */}
+        {/* Left Column: Rent Details + Tenants + Utilities */}
         <div className="md:col-span-3 lg:col-span-3 space-y-8">
           {/* Rent Details Card */}
           <div>
@@ -116,6 +118,9 @@ export default async function RentDetailsPage({ params }: { params: Promise<{ id
 
           {/* Tenants Information */}
           <TenantList tenants={tenants} rent={rent} isAdmin={isAdmin} />
+
+          {/* Utilities Information */}
+          <UtilityList utilities={utilities} rentAgreementId={resolvedParams.id} isAdmin={isAdmin} />
         </div>
 
         {/* Right Column: Payment History Table */}

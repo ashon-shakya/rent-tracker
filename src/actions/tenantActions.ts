@@ -19,20 +19,21 @@ export async function inviteTenant(formData: FormData) {
   const rentAgreementId = formData.get("rentAgreementId") as string;
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
-  
+
   const RentAgreement = (await import("@/models/RentAgreement")).default;
   const rentAgreement = await RentAgreement.findById(rentAgreementId);
-  
+
   if (!rentAgreement || rentAgreement.ownerEmail !== session.user.email) {
     throw new Error("Only the agreement owner can invite tenants");
   }
 
-  if (!email.toLowerCase().endsWith('@gmail.com')) {
+  if (!email.toLowerCase().endsWith("@gmail.com")) {
     throw new Error("Only Gmail accounts are allowed.");
   }
 
   const rentShareParts = parseFloat(formData.get("rentShareParts") as string) || 1;
   const bondShareParts = parseFloat(formData.get("bondShareParts") as string) || 1;
+  const utilityShareParts = parseFloat(formData.get("utilityShareParts") as string) || 1;
 
   await Tenant.create({
     rentAgreementId,
@@ -40,6 +41,7 @@ export async function inviteTenant(formData: FormData) {
     email,
     rentShareParts,
     bondShareParts,
+    utilityShareParts,
   });
 
   // Send invitation email
@@ -48,8 +50,8 @@ export async function inviteTenant(formData: FormData) {
 
   if (process.env.RESEND_API_KEY) {
     try {
-      const { data, error } = await resend.emails.send({
-        from: 'Rent Tracker <onboarding@resend.dev>', 
+      const { error } = await resend.emails.send({
+        from: "Rent Tracker <onboarding@resend.dev>",
         to: email,
         subject: `You've been invited to track rent for ${address}`,
         html: `
@@ -61,7 +63,7 @@ export async function inviteTenant(formData: FormData) {
             <br/>
             <a href="${appUrl}/dashboard" style="background-color:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">View Dashboard</a>
           </div>
-        `
+        `,
       });
 
       if (error) {
@@ -98,10 +100,10 @@ export async function updateTenant(tenantId: string, formData: FormData) {
   if (!session?.user) throw new Error("Unauthorized");
 
   await dbConnect();
-  
+
   const currentTenant = await Tenant.findById(tenantId);
   if (!currentTenant) throw new Error("Tenant not found");
-  
+
   const RentAgreement = (await import("@/models/RentAgreement")).default;
   const rentAgreement = await RentAgreement.findById(currentTenant.rentAgreementId);
   if (!rentAgreement || rentAgreement.ownerEmail !== session.user.email) {
@@ -110,10 +112,11 @@ export async function updateTenant(tenantId: string, formData: FormData) {
 
   const rentShareParts = parseFloat(formData.get("rentShareParts") as string) || 1;
   const bondShareParts = parseFloat(formData.get("bondShareParts") as string) || 1;
+  const utilityShareParts = parseFloat(formData.get("utilityShareParts") as string) || 1;
 
   const tenant = await Tenant.findByIdAndUpdate(
-    tenantId, 
-    { $set: { rentShareParts, bondShareParts } },
+    tenantId,
+    { $set: { rentShareParts, bondShareParts, utilityShareParts } },
     { new: true }
   );
 
@@ -128,7 +131,7 @@ export async function deleteTenant(tenantId: string) {
   if (!session?.user) throw new Error("Unauthorized");
 
   await dbConnect();
-  
+
   const tenantToDelete = await Tenant.findById(tenantId);
   if (!tenantToDelete) return;
 
@@ -139,7 +142,7 @@ export async function deleteTenant(tenantId: string) {
   }
 
   const tenant = await Tenant.findByIdAndDelete(tenantId);
-  
+
   if (tenant) {
     revalidatePath(`/dashboard/rents/${tenant.rentAgreementId}`);
     revalidatePath(`/dashboard/tenants`);
@@ -151,12 +154,14 @@ export async function getAllTenants() {
   if (!session?.user?.email) return [];
 
   await dbConnect();
-  
-  const RentAgreement = (await import("@/models/RentAgreement")).default;
-  const userRents = await RentAgreement.find({ ownerEmail: session.user.email }).select('_id');
-  const userRentIds = userRents.map(r => r._id);
 
-  const tenants = await Tenant.find({ rentAgreementId: { $in: userRentIds } }).populate('rentAgreementId').lean();
+  const RentAgreement = (await import("@/models/RentAgreement")).default;
+  const userRents = await RentAgreement.find({ ownerEmail: session.user.email }).select("_id");
+  const userRentIds = userRents.map((r) => r._id);
+
+  const tenants = await Tenant.find({ rentAgreementId: { $in: userRentIds } })
+    .populate("rentAgreementId")
+    .lean();
   return JSON.parse(JSON.stringify(tenants));
 }
 

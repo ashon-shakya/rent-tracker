@@ -1,4 +1,4 @@
-import { Bell, Plus, Home, PieChart, Wallet, Calendar, ChevronRight, User, Activity } from "lucide-react";
+import { Bell, Plus, Home, PieChart, Wallet, Calendar, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
@@ -8,6 +8,7 @@ import { getUserProfile } from "@/actions/userActions";
 import { getTenantsByUserEmail } from "@/actions/tenantActions";
 import PaymentChart from "@/components/PaymentChart";
 import { getUserIcon } from "@/components/UserIcon";
+import { getUtilityIcon } from "@/components/UtilityIcon";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -17,54 +18,61 @@ export default async function DashboardPage() {
 
   const rents = await getRentAgreements();
   const allPayments = await getAllPayments();
-  const myTenancies = await getTenantsByUserEmail(userEmail);
+  await getTenantsByUserEmail(userEmail);
   const userProfile = await getUserProfile();
-  
+
   const totalRents = rents.length;
-  const totalBond = rents.reduce((sum: number, rent: any) => sum + rent.bondAmount, 0);
+  const totalBond = rents.reduce((sum: number, rent: { bondAmount: number }) => sum + rent.bondAmount, 0);
 
   // Calculate my share
   let myShareStr = "--";
   if (rents.length > 0) {
-      const totalMyShare = rents.reduce((sum: number, rent: any) => sum + rent.rentAmount, 0);
-      myShareStr = `$${totalMyShare.toLocaleString()}`;
+    const totalMyShare = rents.reduce((sum: number, rent: { rentAmount: number }) => sum + rent.rentAmount, 0);
+    myShareStr = `$${totalMyShare.toLocaleString()}`;
   }
 
   // Calculate next due date from payments
   let nextDueStr = "--";
-  const rentPayments = allPayments.filter((p: any) => p.type === 'RENT' || !p.type);
+  const rentPayments = allPayments.filter(
+    (p: { type?: string }) => p.type === "RENT" || !p.type
+  );
   if (rentPayments.length > 0) {
-      const latestPayment = rentPayments[0]; 
+    const latestPayment = rentPayments[0];
+    if (latestPayment.periodEndDate) {
       const nextDue = new Date(latestPayment.periodEndDate);
       nextDue.setDate(nextDue.getDate() + 1);
-      nextDueStr = nextDue.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      nextDueStr = nextDue.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    }
   } else if (rents.length > 0) {
-      const firstRent = new Date(rents[0].startDate);
-      nextDueStr = firstRent.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const firstRent = new Date(rents[0].startDate);
+    nextDueStr = firstRent.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
   }
 
-  // Process data for the chart (last 6 months ideally, but we'll just group by month string)
-  const chartDataMap: Record<string, { rent: number, bond: number }> = {};
-  [...allPayments].reverse().forEach((p: any) => {
+  // Process data for the chart including rent, bond, and utility
+  const chartDataMap: Record<string, { rent: number; bond: number; utility: number }> = {};
+  [...allPayments].reverse().forEach((p: { paidDate: string; type?: string; paidAmount: number }) => {
     const d = new Date(p.paidDate);
-    const month = d.toLocaleDateString('en-GB', { month: 'short' });
-    if (!chartDataMap[month]) chartDataMap[month] = { rent: 0, bond: 0 };
-    if (p.type === 'BOND') {
+    const month = d.toLocaleDateString("en-GB", { month: "short" });
+    if (!chartDataMap[month]) chartDataMap[month] = { rent: 0, bond: 0, utility: 0 };
+
+    if (p.type === "BOND") {
       chartDataMap[month].bond += p.paidAmount;
+    } else if (p.type === "UTILITY") {
+      chartDataMap[month].utility += p.paidAmount;
     } else {
       chartDataMap[month].rent += p.paidAmount;
     }
   });
-  const chartData = Object.keys(chartDataMap).map(month => ({
+
+  const chartData = Object.keys(chartDataMap).map((month) => ({
     month,
     rent: chartDataMap[month].rent,
     bond: chartDataMap[month].bond,
+    utility: chartDataMap[month].utility,
   }));
-
 
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-500 max-w-6xl">
-      
       {/* Header Profile Section */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -77,7 +85,10 @@ export default async function DashboardPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/rents/new" className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm text-slate-500 hover:text-violet-600 transition-colors">
+          <Link
+            href="/dashboard/rents/new"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm text-slate-500 hover:text-violet-600 transition-colors"
+          >
             <Plus size={20} strokeWidth={2.5} />
           </Link>
           <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm text-slate-500 hover:text-violet-600 transition-colors relative">
@@ -91,26 +102,26 @@ export default async function DashboardPage() {
       <div>
         <h2 className="text-lg font-bold text-slate-800 mb-4">Rent Summary</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <SummaryCard 
+          <SummaryCard
             icon={<Home className="text-violet-500" size={22} />}
             label="Active Leases"
-            value={totalRents.toString().padStart(2, '0')}
+            value={totalRents.toString().padStart(2, "0")}
             bgColor="bg-violet-50"
           />
-          <SummaryCard 
+          <SummaryCard
             icon={<Wallet className="text-sky-500" size={22} />}
             label="Total Bond"
             value={`$${totalBond.toLocaleString()}`}
             bgColor="bg-sky-50"
           />
-          <SummaryCard 
+          <SummaryCard
             icon={<PieChart className="text-rose-400" size={22} />}
             label="My Share"
             value={myShareStr}
             subtext="/ cycle"
             bgColor="bg-rose-50"
           />
-          <SummaryCard 
+          <SummaryCard
             icon={<Calendar className="text-amber-500" size={22} />}
             label="Next Due"
             value={nextDueStr}
@@ -121,11 +132,11 @@ export default async function DashboardPage() {
 
       {/* Payment History Chart */}
       <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100/60">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-slate-800">Payment History</h2>
-          <span className="text-sm font-medium text-slate-400 bg-slate-50 px-3 py-1 rounded-full">Monthly</span>
+          <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1 rounded-full">Monthly Breakdown</span>
         </div>
-        
+
         <PaymentChart data={chartData} />
       </div>
 
@@ -133,21 +144,53 @@ export default async function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-slate-800">Recent Activity</h2>
-          <Link href="/dashboard/activity" className="text-sm font-semibold text-violet-500 hover:text-violet-600 transition-colors">
+          <Link
+            href="/dashboard/activity"
+            className="text-sm font-semibold text-violet-500 hover:text-violet-600 transition-colors"
+          >
             View all &gt;
           </Link>
         </div>
         <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100/60 p-2 flex flex-col gap-2">
           {allPayments.length > 0 ? (
-            allPayments.slice(0, 3).map((p: any) => (
-              <Link key={p._id} href={`/dashboard/rents/${p.rentAgreementId?._id || p.rentAgreementId}`}>
-                <ActivityItem 
-                  title={`${p.type || 'RENT'} Payment`} 
-                  subtitle={`${p.rentAgreementId?.address || 'Rent Agreement'} • Paid ${new Date(p.paidDate).toLocaleDateString('en-GB')}`}
-                  amount={`+$${p.paidAmount.toLocaleString()}`} 
-                />
-              </Link>
-            ))
+            allPayments.slice(0, 3).map((p: {
+              _id: string;
+              type?: string;
+              utilityTitle?: string;
+              utilityCategory?: string;
+              utilityIcon?: string;
+              utilityId?: { _id?: string; title?: string; category?: string; icon?: string } | string;
+              rentAgreementId?: { _id?: string; address?: string };
+              paidDate: string;
+              paidAmount: number;
+            }) => {
+              const utilObj = typeof p.utilityId === "object" && p.utilityId !== null ? p.utilityId : null;
+              const utilIcon = p.utilityIcon || utilObj?.icon;
+              const utilCategory = p.utilityCategory || utilObj?.category;
+              const utilTitle = p.utilityTitle || utilObj?.title;
+
+              return (
+                <Link key={p._id} href={`/dashboard/rents/${p.rentAgreementId?._id || p.rentAgreementId}`}>
+                  <ActivityItem
+                    title={
+                      p.type === "UTILITY"
+                        ? `Utility: ${utilTitle || "Payment"}`
+                        : p.type === "BOND"
+                        ? "Bond Payment"
+                        : "Rent Payment"
+                    }
+                    subtitle={`${p.rentAgreementId?.address || "Rent Agreement"} • Paid ${new Date(
+                      p.paidDate
+                    ).toLocaleDateString("en-GB")}`}
+                    amount={`+$${p.paidAmount.toLocaleString()}`}
+                    type={p.type}
+                    utilityIcon={utilIcon}
+                    utilityCategory={utilCategory}
+                    utilityTitle={utilTitle}
+                  />
+                </Link>
+              );
+            })
           ) : (
             <div className="text-center py-8 px-4">
               <p className="text-sm font-medium text-slate-400">No recent activity to show.</p>
@@ -155,15 +198,26 @@ export default async function DashboardPage() {
           )}
         </div>
       </div>
-
     </div>
   );
 }
 
-function SummaryCard({ icon, label, value, subtext, bgColor }: { icon: React.ReactNode, label: string, value: string, subtext?: string, bgColor?: string }) {
+function SummaryCard({
+  icon,
+  label,
+  value,
+  subtext,
+  bgColor,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  subtext?: string;
+  bgColor?: string;
+}) {
   return (
     <div className="bg-white p-5 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center text-center gap-2 border border-slate-100/60 hover:shadow-md transition-shadow">
-      <div className={`w-11 h-11 rounded-xl ${bgColor || 'bg-violet-50'} flex items-center justify-center mb-1`}>
+      <div className={`w-11 h-11 rounded-xl ${bgColor || "bg-violet-50"} flex items-center justify-center mb-1`}>
         {icon}
       </div>
       <p className="text-sm font-medium text-slate-400">{label}</p>
@@ -175,20 +229,51 @@ function SummaryCard({ icon, label, value, subtext, bgColor }: { icon: React.Rea
   );
 }
 
-function ActivityItem({ title, subtitle, amount }: { title: string, subtitle: string, amount: string }) {
+function ActivityItem({
+  title,
+  subtitle,
+  amount,
+  type,
+  utilityIcon,
+  utilityCategory,
+  utilityTitle,
+}: {
+  title: string;
+  subtitle: string;
+  amount: string;
+  type?: string;
+  utilityIcon?: string;
+  utilityCategory?: string;
+  utilityTitle?: string;
+}) {
+  const isUtility = type === "UTILITY";
+  const isBond = type === "BOND";
+
   return (
     <div className="flex items-center justify-between p-4 hover:bg-violet-50/50 rounded-2xl transition-colors cursor-pointer group">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-100 transition-colors">
-          <Wallet size={20} />
+        <div
+          className={`w-11 h-11 rounded-full flex items-center justify-center ${
+            isUtility
+              ? "bg-amber-50 text-amber-600 group-hover:bg-amber-100"
+              : isBond
+              ? "bg-sky-50 text-sky-600 group-hover:bg-sky-100"
+              : "bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100"
+          } transition-colors`}
+        >
+          {isUtility ? (
+            getUtilityIcon(utilityIcon, 18, "", utilityCategory, utilityTitle)
+          ) : (
+            <Wallet size={18} />
+          )}
         </div>
         <div>
-          <h4 className="font-bold text-slate-800">{title}</h4>
+          <h4 className="font-bold text-slate-800 text-sm">{title}</h4>
           <p className="text-xs font-medium text-slate-400">{subtitle}</p>
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <span className={`font-bold ${amount.startsWith('+') ? 'text-emerald-500' : 'text-slate-800'}`}>
+        <span className={`text-sm font-bold ${isUtility ? "text-amber-600" : isBond ? "text-sky-600" : "text-emerald-500"}`}>
           {amount}
         </span>
         <ChevronRight size={18} className="text-slate-300" />

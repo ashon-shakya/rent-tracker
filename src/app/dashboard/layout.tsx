@@ -1,8 +1,9 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { DesktopNavigation, MobileNavigation } from "@/components/Navigation";
 import { getUserProfile } from "@/actions/userActions";
+import { SidebarProvider } from "@/components/SidebarContext";
+import { DashboardShell } from "@/components/DashboardShell";
 
 export default async function DashboardLayout({
   children,
@@ -20,15 +21,10 @@ export default async function DashboardLayout({
   const userIcon = userProfile?.icon || "";
 
   return (
-    <div className="min-h-screen bg-[#f8f7fc] text-slate-800 pb-20 md:pb-0 md:pl-64">
-      <DesktopNavigation initial={initial} userIcon={userIcon} />
-
-      {/* Main Content Area */}
-      <main className="mx-auto md:mx-0 p-4 md:p-8">
+    <SidebarProvider>
+      <DashboardShell initial={initial} userIcon={userIcon}>
         {children}
-      </main>
-
-      <MobileNavigation />
-    </div>
+      </DashboardShell>
+    </SidebarProvider>
   );
 }
