@@ -1,11 +1,13 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+export type UtilityBillingPeriod = "weekly" | "fortnightly" | "monthly" | "quarterly" | "annually";
+
 export interface IUtility extends Document {
   rentAgreementId: mongoose.Types.ObjectId;
   title: string;
   category: string;
   icon: string;
-  billingPeriod: "weekly" | "fortnightly" | "monthly" | "quarterly" | "annually";
+  billingPeriod: UtilityBillingPeriod;
   startDate: Date;
   endDate?: Date;
   amount?: number;

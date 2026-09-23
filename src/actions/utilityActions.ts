@@ -3,7 +3,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/mongoose";
-import Utility from "@/models/Utility";
+import Utility, { UtilityBillingPeriod } from "@/models/Utility";
 import RentAgreement from "@/models/RentAgreement";
 import { revalidatePath } from "next/cache";
 
@@ -19,7 +19,7 @@ export async function createUtility(formData: FormData) {
   const title = formData.get("title") as string;
   const category = (formData.get("category") as string) || "electricity";
   const icon = (formData.get("icon") as string) || "Zap";
-  const billingPeriod = (formData.get("billingPeriod") as string) || "monthly";
+  const billingPeriod = ((formData.get("billingPeriod") as string) || "monthly") as UtilityBillingPeriod;
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = formData.get("endDate") as string;
   const amountStr = formData.get("amount") as string;
@@ -59,7 +59,7 @@ export async function updateUtility(formData: FormData) {
   const title = formData.get("title") as string;
   const category = (formData.get("category") as string) || "electricity";
   const icon = (formData.get("icon") as string) || "Zap";
-  const billingPeriod = (formData.get("billingPeriod") as string) || "monthly";
+  const billingPeriod = ((formData.get("billingPeriod") as string) || "monthly") as UtilityBillingPeriod;
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = formData.get("endDate") as string;
   const amountStr = formData.get("amount") as string;
