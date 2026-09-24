@@ -182,7 +182,7 @@ export default function UtilityList({ utilities, rentAgreementId, isAdmin }: Uti
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           {utilities.map((u) => {
             const isEnded = u.endDate && new Date(u.endDate) <= new Date();
             const formattedStart = new Date(u.startDate).toLocaleDateString("en-GB");
@@ -191,14 +191,14 @@ export default function UtilityList({ utilities, rentAgreementId, isAdmin }: Uti
             return (
               <div
                 key={u._id}
-                className={`relative rounded-2xl p-4 border transition-all ${
+                className={`relative rounded-2xl p-4 border transition-all overflow-hidden ${
                   isEnded
                     ? "bg-slate-50/60 border-slate-200 opacity-75"
                     : "bg-white border-slate-100 hover:border-violet-200 hover:shadow-sm"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div
                       className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                         isEnded
@@ -208,18 +208,20 @@ export default function UtilityList({ utilities, rentAgreementId, isAdmin }: Uti
                     >
                       {getUtilityIcon(u.icon, 20)}
                     </div>
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">{u.title}</h4>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-violet-50 text-violet-600 capitalize">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-slate-800 text-sm truncate" title={u.title}>
+                        {u.title}
+                      </h4>
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-violet-50 text-violet-600 capitalize shrink-0">
                           {BILLING_PERIOD_LABELS[u.billingPeriod] || u.billingPeriod}
                         </span>
                         {isEnded ? (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200 text-slate-600 flex items-center gap-1">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200 text-slate-600 flex items-center gap-1 shrink-0">
                             <Clock size={10} /> Ended
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 flex items-center gap-1">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 flex items-center gap-1 shrink-0">
                             <CheckCircle2 size={10} /> Active
                           </span>
                         )}
@@ -228,7 +230,7 @@ export default function UtilityList({ utilities, rentAgreementId, isAdmin }: Uti
                   </div>
 
                   {isAdmin && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 shrink-0 ml-2">
                       <button
                         onClick={() => openEditModal(u)}
                         className="p-1.5 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
@@ -247,31 +249,30 @@ export default function UtilityList({ utilities, rentAgreementId, isAdmin }: Uti
                   )}
                 </div>
 
-                <div className="space-y-1.5 pt-2 border-t border-slate-100 text-xs text-slate-500">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1 text-slate-400">
-                      <Calendar size={12} /> Start Date:
-                    </span>
-                    <span className="font-semibold text-slate-700">{formattedStart}</span>
+                <div className="flex flex-wrap items-center justify-between gap-y-1.5 gap-x-4 pt-2.5 border-t border-slate-100 text-xs text-slate-500">
+                  <div className="flex items-center gap-1 text-slate-400">
+                    <Calendar size={12} className="shrink-0" />
+                    <span>Start Date:</span>
+                    <span className="font-semibold text-slate-700 ml-1">{formattedStart}</span>
                   </div>
                   {formattedEnd && (
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1 text-slate-400">
-                        <Calendar size={12} /> End Date:
-                      </span>
-                      <span className="font-semibold text-slate-700">{formattedEnd}</span>
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Calendar size={12} className="shrink-0" />
+                      <span>End Date:</span>
+                      <span className="font-semibold text-slate-700 ml-1">{formattedEnd}</span>
                     </div>
                   )}
                   {u.amount !== undefined && u.amount !== null && (
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1 text-slate-400">
-                        <DollarSign size={12} /> Est. Cost:
-                      </span>
-                      <span className="font-bold text-slate-800">${u.amount.toLocaleString()}</span>
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <DollarSign size={12} className="shrink-0" />
+                      <span>Est. Cost:</span>
+                      <span className="font-bold text-slate-800 ml-1">${u.amount.toLocaleString()}</span>
                     </div>
                   )}
                   {u.notes && (
-                    <p className="text-[11px] text-slate-400 italic pt-1">{u.notes}</p>
+                    <p className="w-full text-[11px] text-slate-400 italic pt-1 truncate" title={u.notes}>
+                      {u.notes}
+                    </p>
                   )}
                 </div>
               </div>
