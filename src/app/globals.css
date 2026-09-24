@@ -141,8 +141,10 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
 }
+
 
 @keyframes float-gentle {
   0%, 100% {

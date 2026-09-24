@@ -60,9 +60,18 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="text-center text-sm font-medium text-slate-400 mt-8">
-          By signing in, you agree to our Terms of Service and Privacy Policy.
+        <p className="text-center text-xs font-medium text-slate-400 mt-8">
+          By signing in, you agree to our{" "}
+          <Link href="/terms" className="text-violet-600 hover:underline font-semibold">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="text-violet-600 hover:underline font-semibold">
+            Privacy Policy
+          </Link>
+          .
         </p>
+
       </div>
     </div>
   );
