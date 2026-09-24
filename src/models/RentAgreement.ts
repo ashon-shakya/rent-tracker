@@ -36,12 +36,9 @@ const RentAgreementSchema: Schema = new Schema(
 // Indexes
 RentAgreementSchema.index({ ownerEmail: 1, createdAt: -1 });
 
-if (mongoose.models.RentAgreement) {
-  delete mongoose.models.RentAgreement;
-}
-const RentAgreement: Model<IRentAgreement> = mongoose.model<IRentAgreement>(
-  "RentAgreement",
-  RentAgreementSchema
-);
+const RentAgreement: Model<IRentAgreement> =
+  mongoose.models.RentAgreement ||
+  mongoose.model<IRentAgreement>("RentAgreement", RentAgreementSchema);
 
 export default RentAgreement;
+

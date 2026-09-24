@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/mongoose";
 import Tenant from "@/models/Tenant";
+import RentAgreement from "@/models/RentAgreement";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Resend } from "resend";
@@ -20,8 +21,8 @@ export async function inviteTenant(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
 
-  const RentAgreement = (await import("@/models/RentAgreement")).default;
   const rentAgreement = await RentAgreement.findById(rentAgreementId);
+
 
   if (!rentAgreement || rentAgreement.ownerEmail !== session.user.email) {
     throw new Error("Only the agreement owner can invite tenants");
@@ -155,7 +156,6 @@ export async function getAllTenants() {
 
   await dbConnect();
 
-  const RentAgreement = (await import("@/models/RentAgreement")).default;
   const userRents = await RentAgreement.find({ ownerEmail: session.user.email }).select("_id");
   const userRentIds = userRents.map((r) => r._id);
 
@@ -164,6 +164,7 @@ export async function getAllTenants() {
     .lean();
   return JSON.parse(JSON.stringify(tenants));
 }
+
 
 export async function getTenantsByUserEmail(email: string) {
   await dbConnect();

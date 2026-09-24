@@ -49,9 +49,12 @@ PaymentSchema.index({ rentAgreementId: 1, type: 1, periodEndDate: -1 });
 PaymentSchema.index({ rentAgreementId: 1, utilityId: 1, type: 1, periodEndDate: -1 });
 PaymentSchema.index({ paidDate: -1 });
 
-if (mongoose.models.Payment) {
-  delete mongoose.models.Payment;
-}
-const Payment: Model<IPayment> = mongoose.model<IPayment>("Payment", PaymentSchema);
+// Ensure referenced schemas are registered for populate queries
+import "./RentAgreement";
+import "./Utility";
+
+const Payment: Model<IPayment> =
+  mongoose.models.Payment || mongoose.model<IPayment>("Payment", PaymentSchema);
 
 export default Payment;
+

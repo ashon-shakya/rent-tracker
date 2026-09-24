@@ -39,9 +39,8 @@ const UtilitySchema: Schema = new Schema(
 // Indexes
 UtilitySchema.index({ rentAgreementId: 1, createdAt: -1 });
 
-if (mongoose.models.Utility) {
-  delete mongoose.models.Utility;
-}
-const Utility: Model<IUtility> = mongoose.model<IUtility>("Utility", UtilitySchema);
+const Utility: Model<IUtility> =
+  mongoose.models.Utility || mongoose.model<IUtility>("Utility", UtilitySchema);
 
 export default Utility;
+

@@ -4,8 +4,12 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/mongoose";
 import Payment from "@/models/Payment";
+import RentAgreement from "@/models/RentAgreement";
+import Utility from "@/models/Utility";
+import Tenant from "@/models/Tenant";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
 
 export async function logPayment(formData: FormData) {
   const session = await getServerSession(authOptions);
@@ -69,7 +73,6 @@ export async function togglePaymentSettlement(
 
   await dbConnect();
 
-  const RentAgreement = (await import("@/models/RentAgreement")).default;
   const rentAgreement = await RentAgreement.findById(rentAgreementId);
   if (!rentAgreement || rentAgreement.ownerEmail !== session.user.email) {
     throw new Error("Only the agreement owner can update settlement status");
@@ -95,7 +98,6 @@ export async function bulkTogglePaymentSettlement(
 
   await dbConnect();
 
-  const RentAgreement = (await import("@/models/RentAgreement")).default;
   const rentAgreement = await RentAgreement.findById(rentAgreementId);
   if (!rentAgreement || rentAgreement.ownerEmail !== session.user.email) {
     throw new Error("Only the agreement owner can update settlement status");
@@ -145,7 +147,6 @@ export async function deletePayments(paymentIds: string[], rentAgreementId: stri
 
   await dbConnect();
 
-  const RentAgreement = (await import("@/models/RentAgreement")).default;
   const rentAgreement = await RentAgreement.findById(rentAgreementId);
   if (!rentAgreement || rentAgreement.ownerEmail !== session.user.email) {
     throw new Error("Only the agreement owner can delete payments");
@@ -157,17 +158,16 @@ export async function deletePayments(paymentIds: string[], rentAgreementId: stri
   revalidatePath("/dashboard");
 }
 
+
 export async function getAllPayments() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) return [];
 
   await dbConnect();
 
-  const RentAgreement = (await import("@/models/RentAgreement")).default;
   const userRents = await RentAgreement.find({ ownerEmail: session.user.email }).select("_id");
   const userRentIds = userRents.map((r) => r._id);
 
-  const Tenant = (await import("@/models/Tenant")).default;
   const userTenancies = await Tenant.find({ email: session.user.email }).lean();
   const tenantRentIds = userTenancies.map((t) => t.rentAgreementId);
 
@@ -180,3 +180,4 @@ export async function getAllPayments() {
     .lean();
   return JSON.parse(JSON.stringify(payments));
 }
+
